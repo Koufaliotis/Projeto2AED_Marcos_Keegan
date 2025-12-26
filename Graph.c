@@ -263,8 +263,54 @@ Graph* GraphGetSubgraph(const Graph* g, IndicesSet* vertSet) {
   Graph* new = GraphCreateEmpty(g->indicesRange, g->isDigraph, g->isWeighted);
 
   //
-  // TO BE COMPLETED
-  //
+  // COMPLETED BY KEEGAN VERIFY:
+  
+  // 1) Adicionar os vértices do vertSet ao novo grafo
+  int u = IndicesSetGetFirstElem(vertSet);
+  while (u != -1) {
+    GraphAddVertex(new, (unsigned int)u);
+    u = IndicesSetGetNextElem(vertSet);
+  }
+
+  // 2) Adicionar as arestas entre vértices do vertSet
+  u = IndicesSetGetFirstElem(vertSet);
+  while (u != -1) {
+    // Encontrar o vértice u no grafo original
+    struct _Vertex search_dummy;
+    search_dummy.id = (unsigned int)u;
+
+    int found = ListSearch(g->verticesList, (void*)(&search_dummy));
+    assert(found == 0);
+
+    struct _Vertex* vertex_u = (struct _Vertex*)ListGetCurrentItem(g->verticesList);
+    List* edges = vertex_u->edgesList;
+
+    if (ListIsEmpty(edges) == 0) {
+      ListMoveToHead(edges);
+      for (int k = 0; k < ListGetSize(edges); k++, ListMoveToNext(edges)) {
+        struct _Edge* e = (struct _Edge*)ListGetCurrentItem(edges);
+        unsigned int w = e->adjVertex;
+
+        // Só queremos arestas cujo destino também está no vertSet
+        if (!IndicesSetContains(vertSet, (uint16_t)w)) continue;
+
+        if (g->isDigraph == 0) {
+          // Grafo não-orientado: evitar duplicar (u-w e w-u)
+          if ((unsigned int)u > w) continue;
+        }
+
+        if (g->isWeighted == 0) {
+          GraphAddEdge(new, (unsigned int)u, w);
+        } else {
+          GraphAddWeightedEdge(new, (unsigned int)u, w, e->weight);
+        }
+      }
+    }
+
+    u = IndicesSetGetNextElem(vertSet);
+  }
+
+  // END
 
   GraphCheckInvariants(new);
 
@@ -378,7 +424,31 @@ IndicesSet* GraphGetSetAdjacentsTo(const Graph* g, unsigned int v) {
   IndicesSet* adjacents_set = IndicesSetCreateEmpty(g->indicesRange); //new set
 
   //
-  // TO BE COMPLETED
+  // COMPLETED BY KEEGAN VERIFY:
+  
+  // 1) Encontrar o vértice v na lista de vértices
+  struct _Vertex search_dummy;
+  search_dummy.id = v;
+
+  // verticesList é uma SortedList; ListSearch posiciona o "current" no encontrado
+  int found = ListSearch(g->verticesList, (void*)(&search_dummy));
+  assert(found == 0);
+
+  struct _Vertex* vertex_v = (struct _Vertex*)ListGetCurrentItem(g->verticesList);
+
+  // 2) Percorrer a lista de arestas (adjacências) de v
+  List* edges = vertex_v->edgesList;
+  if (ListIsEmpty(edges)) {
+    return adjacents_set;  // sem adjacências
+  }
+
+  ListMoveToHead(edges);
+  for (int i = 0; i < ListGetSize(edges); i++, ListMoveToNext(edges)) {
+    struct _Edge* e = (struct _Edge*)ListGetCurrentItem(edges);
+    IndicesSetAdd(adjacents_set, (uint16_t)e->adjVertex);
+  }
+
+  // ENDS HERE
   //
 
   return adjacents_set;
@@ -404,7 +474,42 @@ double* GraphComputeVertexWeights(const Graph* g) {
   }
 
   //
-  // TO BE COMPLETED
+  // COMPLETED BY KEEGAN VERIFY:
+    assert(g != NULL);
+  assert(g->isDigraph == 0);  // ONLY FOR UNDIRECTED GRAPHS
+
+  // Percorrer todos os vértices existentes (na verticesList)
+  List* vertices = g->verticesList;
+  if (ListIsEmpty(vertices)) {
+    return weightsArray;  // grafo vazio (não deve acontecer muito, mas ok)
+  }
+
+  ListMoveToHead(vertices);
+  for (unsigned int i = 0; i < g->numVertices; i++, ListMoveToNext(vertices)) {
+    struct _Vertex* vtx = (struct _Vertex*)ListGetCurrentItem(vertices);
+    unsigned int vid = vtx->id;
+
+    double sum = 0.0;
+
+    if (g->isWeighted == 0) {
+      // sem pesos: peso = grau (outDegree)
+      sum = (double)vtx->outDegree;
+    } else {
+      // com pesos: somar o weight de cada aresta adjacente
+      List* edges = vtx->edgesList;
+      if (ListIsEmpty(edges) == 0) {
+        ListMoveToHead(edges);
+        for (int k = 0; k < ListGetSize(edges); k++, ListMoveToNext(edges)) {
+          struct _Edge* e = (struct _Edge*)ListGetCurrentItem(edges);
+          sum += e->weight;
+        }
+      }
+    }
+
+    weightsArray[vid] = sum;
+  }
+
+  // END
   //
 
   return weightsArray;
