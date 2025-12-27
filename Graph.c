@@ -9,8 +9,8 @@
 
 // Student Name : Keegan Azevedo
 // Student Number : 110160
-// Student Name :
-// Student Number :
+// Student Name : Marcos Koufaliotis
+// Student Number : 114982
 
 /*** COMPLETE THE GraphGetSetAdjacentsTo FUNCTION */
 /*** COMPLETE THE GraphComputeVertexWeights FUNCTION ***/
