@@ -39,7 +39,6 @@ int GraphIsDominatingSet(const Graph* g, IndicesSet* vertSet) {
   assert(GraphIsDigraph(g) == 0);
   assert(IndicesSetIsEmpty(vertSet) == 0);
 
-  // COMPLETED BY KEEGAN:
 
   // vertSet tem de estar contido no conjunto de vértices do grafo
   IndicesSet* allV = GraphGetSetVertices(g);
@@ -82,7 +81,6 @@ int GraphIsDominatingSet(const Graph* g, IndicesSet* vertSet) {
 
   IndicesSetDestroy(&allV);
   return 1;
-  // END OF COMPLETION
 }
 
 
@@ -96,7 +94,6 @@ int GraphIsDominatingSet(const Graph* g, IndicesSet* vertSet) {
 IndicesSet* GraphComputeMinDominatingSet(const Graph* g) {
   assert(g != NULL);
   assert(GraphIsDigraph(g) == 0);
-  // COMPLETED BY KEEGAN:
 
   unsigned int range = GraphGetVertexRange(g);
 
@@ -110,6 +107,8 @@ IndicesSet* GraphComputeMinDominatingSet(const Graph* g) {
   IndicesSet* candidate = IndicesSetCreateEmpty(range);
 
   do {
+    InstrCount[0] += 1;   // subsets_total
+
     // Ignorar vazio (GraphIsDominatingSet exige não vazio)
     if (IndicesSetIsEmpty(candidate)) continue;
 
@@ -118,6 +117,10 @@ IndicesSet* GraphComputeMinDominatingSet(const Graph* g) {
 
     // Poda: se já não pode bater o best, nem vale a pena testar
     if (IndicesSetGetNumElems(candidate) >= IndicesSetGetNumElems(best)) continue;
+
+    InstrCount[1] += 1;   // subsets_checked
+    InstrCount[2] += 1;   // isdom_calls
+
 
     // Testar se é dominante
     if (GraphIsDominatingSet(g, candidate)) {
@@ -145,7 +148,6 @@ IndicesSet* GraphComputeMinWeightDominatingSet(const Graph* g) {
   assert(g != NULL);
   assert(GraphIsDigraph(g) == 0);
 
-  // COMPLETED BY KEEGAN:
   unsigned int range = GraphGetVertexRange(g);
 
   // Conjunto dos vértices existentes no grafo
@@ -169,6 +171,8 @@ IndicesSet* GraphComputeMinWeightDominatingSet(const Graph* g) {
   IndicesSet* candidate = IndicesSetCreateEmpty(range);
 
   do {
+    InstrCount[0] += 1;   // subsets_total
+
     if (IndicesSetIsEmpty(candidate)) continue;
     if (!IndicesSetIsSubset(candidate, allV)) continue;
 
@@ -181,6 +185,9 @@ IndicesSet* GraphComputeMinWeightDominatingSet(const Graph* g) {
       u = IndicesSetGetNextElem(candidate);
     }
     if (candWeight > bestWeight) continue;
+    
+    InstrCount[1] += 1;   // subsets_checked
+    InstrCount[2] += 1;   // isdom_calls
 
     if (GraphIsDominatingSet(g, candidate)) {
       // Melhor se tiver peso menor, ou empate de peso e menos vértices

@@ -261,9 +261,6 @@ Graph* GraphGetSubgraph(const Graph* g, IndicesSet* vertSet) {
 
   // The "empty" subgraph
   Graph* new = GraphCreateEmpty(g->indicesRange, g->isDigraph, g->isWeighted);
-
-  //
-  // COMPLETED BY KEEGAN VERIFY:
   
   // 1) Adicionar os vértices do vertSet ao novo grafo
   int u = IndicesSetGetFirstElem(vertSet);
@@ -309,8 +306,6 @@ Graph* GraphGetSubgraph(const Graph* g, IndicesSet* vertSet) {
 
     u = IndicesSetGetNextElem(vertSet);
   }
-
-  // END
 
   GraphCheckInvariants(new);
 
@@ -423,8 +418,6 @@ IndicesSet* GraphGetSetAdjacentsTo(const Graph* g, unsigned int v) {
 
   IndicesSet* adjacents_set = IndicesSetCreateEmpty(g->indicesRange); //new set
 
-  //
-  // COMPLETED BY KEEGAN VERIFY:
   
   // 1) Encontrar o vértice v na lista de vértices
   struct _Vertex search_dummy;
@@ -448,9 +441,6 @@ IndicesSet* GraphGetSetAdjacentsTo(const Graph* g, unsigned int v) {
     IndicesSetAdd(adjacents_set, (uint16_t)e->adjVertex);
   }
 
-  // ENDS HERE
-  //
-
   return adjacents_set;
 }
 
@@ -473,8 +463,6 @@ double* GraphComputeVertexWeights(const Graph* g) {
     weightsArray[v] = -1.0;
   }
 
-  //
-  // COMPLETED BY KEEGAN VERIFY:
     assert(g != NULL);
   assert(g->isDigraph == 0);  // ONLY FOR UNDIRECTED GRAPHS
 
@@ -508,9 +496,6 @@ double* GraphComputeVertexWeights(const Graph* g) {
 
     weightsArray[vid] = sum;
   }
-
-  // END
-  //
 
   return weightsArray;
 }
